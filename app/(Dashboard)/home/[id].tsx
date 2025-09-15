@@ -217,20 +217,13 @@ const BookDetailsScreen = () => {
       <View className="flex-row p-4 gap-3 bg-white border-t border-gray-200">
         <TouchableOpacity
   className="flex-1 flex-row items-center justify-center bg-white border border-amber-500 rounded-full py-3"
-  onPress={() => {
-    if (!book.userId) {
-      Alert.alert("Error", "Owner information not available");
-      return;
+  onPress={() => router.push({
+    pathname: "/chat",
+    params: { 
+      receiverId: book.userId, 
+      receiverName: book.username 
     }
-    router.push({
-      pathname: '/chat',
-      params: { 
-        userId: book.ownerId, 
-        username: book.owner, 
-        avatar: book.ownerAvatar || 'https://via.placeholder.com/150'
-      }
-    });
-  }}
+  })}
 >
   <MessageCircle size={20} color="#f59e0b" />
   <Text className="text-amber-600 font-medium ml-2">Message</Text>
