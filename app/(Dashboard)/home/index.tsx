@@ -5,11 +5,14 @@ import { BookOpen, Search, Heart, MessageCircle, User, MapPin } from 'lucide-rea
 import { collection, getDocs } from "firebase/firestore";
 import {db} from "@/firebase" // make sure this points to your firebase setup
 import { useRouter } from 'expo-router';
+import { auth } from "@/firebase";
+import { subscribeUnreadMessages } from "@/services/messageService";
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unreadMessages, setUnreadMessages] = useState<any[]>([]);
 
   const router = useRouter();
 
@@ -38,6 +41,14 @@ const Home = () => {
       b.author?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+
+  useEffect(() => {
+    if (!auth.currentUser?.uid) return;
+    const unsubscribe = subscribeUnreadMessages(auth.currentUser.uid, setUnreadMessages);
+    return () => unsubscribe();
+  }, []);
+
+
   return (
     <View className="flex-1 bg-amber-50">
       {/* Header */}
@@ -51,9 +62,25 @@ const Home = () => {
             <TouchableOpacity className="p-2 rounded-full bg-amber-600">
               <Heart color="white" size={24} />
             </TouchableOpacity>
-            <TouchableOpacity className="p-2 rounded-full bg-amber-600">
-              <MessageCircle color="white" size={24} />
-            </TouchableOpacity>
+            <TouchableOpacity
+  className="relative p-2 rounded-full bg-amber-600"
+  onPress={() => router.push({
+    pathname: "/chat",
+    params: {
+      receiverId: unreadMessages[0].senderId, // example: open first unread chat
+      receiverName: unreadMessages[0].senderName // make sure you store senderName in messages
+    }
+  })}
+>
+  <MessageCircle color="white" size={24} />
+  {unreadMessages.length > 0 && (
+    <View className="absolute -top-1 -right-1 bg-red-500 w-5 h-5 rounded-full flex items-center justify-center">
+      <Text className="text-white text-xs font-bold">{unreadMessages.length}</Text>
+    </View>
+  )}
+</TouchableOpacity>
+
+
             <TouchableOpacity className="p-2 rounded-full bg-amber-600">
               <User color="white" size={24} />
             </TouchableOpacity>
