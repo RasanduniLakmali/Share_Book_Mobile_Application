@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { BookOpen, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { login } from '../../services/authService';
 
 const LoginScreen = () => {
@@ -179,9 +179,11 @@ const LoginScreen = () => {
             {/* Signup Link */}
             <View className="flex-row justify-center items-center">
               <Text className="text-gray-600">Don't have an account? </Text>
+              <Link href="/register" asChild>
               <TouchableOpacity>
                 <Text className="text-indigo-600 font-semibold">Sign Up</Text>
               </TouchableOpacity>
+              </Link>
             </View>
           </View>
 
@@ -243,5 +245,6 @@ const LoginScreen = () => {
     </SafeAreaView>
   );
 }
+
 
 export default LoginScreen
