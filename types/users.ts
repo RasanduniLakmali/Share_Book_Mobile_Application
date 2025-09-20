@@ -4,4 +4,7 @@ export interface User {
     email: string
     password: string
     location: string
+    phone?: string
+    createdAt?: Date
+    profilePicture?: string
 }
