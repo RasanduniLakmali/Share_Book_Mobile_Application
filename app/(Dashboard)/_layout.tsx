@@ -21,15 +21,17 @@ const DashboardLayout = () => {
     <Tabs>
       {tabs.map((tab) => (
         <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            title: tab.label,
-            tabBarIcon: ({ color, size }) => (
-              <Entypo name={tab.icon} size={size} color={color} />
-            ),
-          }}
-        />
+           key={tab.name}
+           name={tab.name}
+            options={{
+                 title: tab.label,
+                  headerShown: false, // 👈 hides the default header
+                  tabBarIcon: ({ color, size }) => (
+          <Entypo name={tab.icon} size={size} color={color} />
+    ),
+  }}
+/>
+
       ))}
     </Tabs>
   );
