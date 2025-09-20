@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
@@ -8,6 +8,7 @@ import { useAuth } from "@/context/authContext";
 import { saveBook, updateBook ,uploadToCloudinary} from "@/services/bookService";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { Camera, Plus, BookOpen, User, FileText, Star, MapPin, Upload, Share2, Tag } from 'lucide-react-native';
+import { getUserById } from '@/services/authService';
 
 const AddBookScreen = () => {
   const [title, setTitle] = useState('');
@@ -22,7 +23,6 @@ const AddBookScreen = () => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   
-
   
   const availabilityOptions = ['Available', 'Currently Borrowed', 'Not Available'];
 
@@ -31,6 +31,8 @@ const AddBookScreen = () => {
   const isNew = !id || id === "new" || id === "index"; // treat default 'index' as new
 
   const { user, loading } = useAuth()
+
+  const [ownerUsername, setOwnerUsername] = useState(user?.displayName || "");
 
   const categories = [
     "Novel",
@@ -43,6 +45,8 @@ const AddBookScreen = () => {
     "Self-Help",
     "Other",
   ];
+
+
 
   const handleAddBook = async () => {
   if (!title || !author || !category || !description || !location) {
@@ -79,7 +83,7 @@ const AddBookScreen = () => {
       isAvailable,
       location,
       userId: user?.uid,
-      owner: user?.displayName || user?.email || "Unknown",
+      username: ownerUsername, 
     };
 
     if (isNew) {
@@ -100,7 +104,7 @@ const AddBookScreen = () => {
     setPdfFile(null);
     setIsAvailable(true);
     setLocation("");
-
+    setOwnerUsername(user?.displayName || "Unknown User");
     router.back();
   } catch (error) {
     console.error("Error saving book:", error);
@@ -110,6 +114,21 @@ const AddBookScreen = () => {
   }
 };
 
+useEffect(() => {
+  const fetchUsername = async () => {
+    if (user) {
+      try {
+        const dbUser = await getUserById(user.uid);
+        setOwnerUsername(dbUser?.name || user.displayName || "Unknown User");
+      } catch (err) {
+        console.error("Error fetching username:", err);
+        setOwnerUsername(user.displayName || "Unknown User");
+      }
+    }
+  };
+
+  fetchUsername();
+}, [user]);
 
 
 const handleImagePicker = async () => {
@@ -128,8 +147,6 @@ const handleImagePicker = async () => {
     setCoverImage(permissionRes.assets[0].uri);
   }
 };
-
-
 
   const handlePdfUpload = async() => {
    try {
@@ -151,48 +168,58 @@ const handleImagePicker = async () => {
 
   return (
     <View className="flex-1 bg-amber-50">
-      <ScrollView className="flex-1 px-4 py-6">
-        <Text className="text-3xl font-bold text-gray-800 mb-2">Add New Book</Text>
-        <Text className="text-gray-600 mb-8">Share your book with the community</Text>
+      {/* Header */}
+      <View className="bg-amber-500 p-4 pt-12">
+        <Text className="text-white text-2xl font-bold">Add New Book</Text>
+        <Text className="text-amber-100 text-sm">Share your book with the community</Text>
+      </View>
 
-        {/* Book Photo Section */}
-        <View className="mb-8">
-          <Text className="text-lg font-semibold text-gray-800 mb-3">Book Photo</Text>
+      <ScrollView className="flex-1 px-4 py-6" showsVerticalScrollIndicator={false}>
+        
+        {/* Book Cover Image Section */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <View className="flex-row items-center mb-4">
+            <Camera color="#F59E0B" size={20} />
+            <Text className="text-lg font-semibold text-gray-800 ml-2">Book Cover</Text>
+          </View>
+          
           <TouchableOpacity 
-            className="w-full h-48 bg-white rounded-xl border-2 border-dashed border-amber-300 items-center justify-center mb-4"
+            className="w-full h-48 bg-amber-50 rounded-xl border-2 border-dashed border-amber-300 items-center justify-center"
             onPress={handleImagePicker}
           >
             {coverImage ? (
-              <>
-              <Image 
-                source={{ uri: coverImage }} 
-                className="w-full h-full rounded-xl"
-                resizeMode="cover"
-              />
-              <Text className="text-green-700 mt-2 font-medium">✅ Cover image selected</Text>
-              </>
-              
+              <View className="w-full h-full relative">
+                <Image 
+                  source={{ uri: coverImage }} 
+                  className="w-full h-full rounded-xl"
+                  resizeMode="cover"
+                />
+                <View className="absolute bottom-2 left-2 bg-green-500 px-2 py-1 rounded-full">
+                  <Text className="text-white text-xs font-medium">✓ Image Selected</Text>
+                </View>
+              </View>
             ) : (
               <View className="items-center">
                 <Camera color="#F59E0B" size={48} />
-                <Text className="text-gray-500 mt-2">Tap to add photo</Text>
+                <Text className="text-amber-600 mt-2 font-medium">Tap to add cover photo</Text>
+                <Text className="text-gray-500 text-sm">Recommended: Book front cover</Text>
               </View>
             )}
           </TouchableOpacity>
         </View>
 
-        {/* Book Information Form */}
-        <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-          <Text className="text-xl font-bold text-gray-800 mb-6">Book Details</Text>
+        {/* Basic Information Section */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <Text className="text-lg font-bold text-gray-800 mb-4">Basic Information</Text>
 
           {/* Title Input */}
-          <View className="mb-5">
+          <View className="mb-4">
             <View className="flex-row items-center mb-2">
-              <BookOpen color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Title</Text>
+              <BookOpen color="#F59E0B" size={18} />
+              <Text className="text-gray-700 font-medium ml-2">Book Title *</Text>
             </View>
             <TextInput
-              className="border border-gray-300 rounded-xl p-4 bg-gray-50"
+              className="border border-gray-300 rounded-xl p-4 bg-gray-50 text-gray-800"
               placeholder="Enter book title"
               value={title}
               onChangeText={setTitle}
@@ -200,13 +227,13 @@ const handleImagePicker = async () => {
           </View>
 
           {/* Author Input */}
-          <View className="mb-5">
+          <View className="mb-4">
             <View className="flex-row items-center mb-2">
-              <User color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Author</Text>
+              <User color="#F59E0B" size={18} />
+              <Text className="text-gray-700 font-medium ml-2">Author *</Text>
             </View>
             <TextInput
-              className="border border-gray-300 rounded-xl p-4 bg-gray-50"
+              className="border border-gray-300 rounded-xl p-4 bg-gray-50 text-gray-800"
               placeholder="Enter author name"
               value={author}
               onChangeText={setAuthor}
@@ -214,149 +241,192 @@ const handleImagePicker = async () => {
           </View>
 
           {/* Location Input */}
-          <View className="mb-5">
+          <View className="mb-4">
             <View className="flex-row items-center mb-2">
-              <MapPin color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Location</Text>
+              <MapPin color="#F59E0B" size={18} />
+              <Text className="text-gray-700 font-medium ml-2">Your Location *</Text>
             </View>
             <TextInput
-              className="border border-gray-300 rounded-xl p-4 bg-gray-50"
-              placeholder="Enter your location (e.g., City, Area)"
+              className="border border-gray-300 rounded-xl p-4 bg-gray-50 text-gray-800"
+              placeholder="e.g., Colombo, Kandy, Galle"
               value={location}
               onChangeText={setLocation}
             />
           </View>
 
-             {/* Category Selection */}
-          <View className="mb-5">
-            <View className="flex-row items-center mb-3">
-              <Tag color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Category</Text>
-            </View>
-            <View className="flex-row flex-wrap gap-2">
-              {categories.map((item) => (
-                <TouchableOpacity
-                  key={item}
-                  className={`px-3 py-2 rounded-lg border ${
-                    category === item
-                      ? 'bg-blue-500 border-blue-500'
-                      : 'bg-white border-gray-300'
-                  }`}
-                  onPress={() => setCategory(item)}
-                >
-                  <Text
-                    className={`text-sm font-medium ${
-                      category === item ? 'text-white' : 'text-gray-700'
-                    }`}
-                  >
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+                  
+{/* Owner Username Input */}
+<View className="mb-4">
+  <View className="flex-row items-center mb-2">
+    <User color="#F59E0B" size={18} />
+    <Text className="text-gray-700 font-medium ml-2">Your Username</Text>
+  </View>
+  <TextInput
+    className="border border-gray-300 rounded-xl p-4 bg-amber-50 text-gray-800"
+    placeholder="Your display name"
+    value={ownerUsername}
+    editable={false}
+  />
+  <Text className="text-xs text-gray-500 mt-1">
+    This is how your name will appear to other users
+  </Text>
+</View>
+
           {/* Description Input */}
-          <View className="mb-5">
+          <View>
             <View className="flex-row items-center mb-2">
-              <FileText color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Description</Text>
+              <FileText color="#F59E0B" size={18} />
+              <Text className="text-gray-700 font-medium ml-2">Description *</Text>
             </View>
             <TextInput
-              className="border border-gray-300 rounded-xl p-4 bg-gray-50 h-32"
-              placeholder="Describe the book (optional)"
+              className="border border-gray-300 rounded-xl p-4 bg-gray-50 h-24 text-gray-800"
+              placeholder="Brief description of the book..."
               value={description}
               onChangeText={setDescription}
               multiline
               textAlignVertical="top"
             />
           </View>
+        </View>
 
-          {/* Condition Selector */}
-          <View className="mb-6">
-            <View className="flex-row items-center mb-3">
-              <Star color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Condition</Text>
-            </View>
-            <View className="flex-row flex-wrap gap-3">
-              {["new", "good", "used"].map((c) => (
-              <TouchableOpacity key={c} className="flex-row items-center" onPress={() => setCondition(c as any)}>
-                <View
-                  className={`w-5 h-5 rounded-full border-2 mr-2 items-center justify-center ${
-                    condition === c ? "border-indigo-600 bg-indigo-600" : "border-gray-300"
+        {/* Category Selection Section */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <View className="flex-row items-center mb-4">
+            <Tag color="#F59E0B" size={18} />
+            <Text className="text-lg font-bold text-gray-800 ml-2">Category *</Text>
+          </View>
+          
+          <View className="flex-row flex-wrap gap-2">
+            {categories.map((item) => (
+              <TouchableOpacity
+                key={item}
+                className={`px-4 py-2 rounded-full border ${
+                  category === item
+                    ? 'bg-amber-500 border-amber-500'
+                    : 'bg-gray-50 border-gray-300'
+                }`}
+                onPress={() => setCategory(item)}
+              >
+                <Text
+                  className={`text-sm font-medium ${
+                    category === item ? 'text-white' : 'text-gray-700'
                   }`}
                 >
-                  {condition === c && <View className="w-2 h-2 bg-white rounded-full" />}
-                </View>
-                <Text className="text-gray-700 capitalize">{c}</Text>
+                  {item}
+                </Text>
               </TouchableOpacity>
             ))}
-            </View>
           </View>
+        </View>
 
+        {/* Book Condition Section */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <View className="flex-row items-center mb-4">
+            <Star color="#F59E0B" size={18} />
+            <Text className="text-lg font-bold text-gray-800 ml-2">Book Condition</Text>
+          </View>
           
-
-          {/* Availability Status Selector */}
-          <View className="mb-6">
-            <View className="flex-row items-center mb-3">
-              <Share2 color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Availability for Sharing</Text>
-            </View>
-            <View className="flex-row flex-wrap gap-3">
-              {availabilityOptions.map((item) => (
-                <TouchableOpacity
-                  key={item}
-                  className={`px-4 py-2 rounded-full border ${
-                    availabilityStatus === item
-                      ? 'bg-green-500 border-green-500'
-                      : 'bg-white border-gray-300'
-                  }`}
-                  onPress={() => setAvailabilityStatus(item)}
-                >
-                  <Text
-                    className={`font-medium ${
-                      availabilityStatus === item ? 'text-white' : 'text-gray-700'
+          <View className="flex-row justify-between">
+            {["new", "good", "used"].map((c) => (
+              <TouchableOpacity 
+                key={c} 
+                className="flex-1 mx-1"
+                onPress={() => setCondition(c as any)}
+              >
+                <View className={`p-3 rounded-xl border-2 items-center ${
+                  condition === c ? "border-amber-500 bg-amber-50" : "border-gray-200 bg-gray-50"
+                }`}>
+                  <View
+                    className={`w-5 h-5 rounded-full border-2 mb-2 items-center justify-center ${
+                      condition === c ? "border-amber-500 bg-amber-500" : "border-gray-300"
                     }`}
                   >
-                    {item}
+                    {condition === c && <View className="w-2 h-2 bg-white rounded-full" />}
+                  </View>
+                  <Text className={`text-sm font-medium capitalize ${
+                    condition === c ? "text-amber-600" : "text-gray-700"
+                  }`}>
+                    {c}
                   </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
+        </View>
 
-          {/* PDF Upload Section */}
-          <View className="mb-2">
-            <View className="flex-row items-center mb-3">
-              <Upload color="#F59E0B" size={20} className="mr-2" />
-              <Text className="text-gray-700 font-medium">Book Preview (PDF)</Text>
-            </View>
-            <TouchableOpacity 
-              className="w-full h-24 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 items-center justify-center"
-              onPress={handlePdfUpload}
-            >
-              {pdfFile ? (
-                <View className="items-center">
-                  <FileText color="#10B981" size={32} />
-                  <Text className="text-green-600 font-medium mt-1">{pdfFile}</Text>
-                  <Text className="text-gray-500 text-sm">PDF attached</Text>
-                </View>
-              ) : (
-                <View className="items-center">
-                  <Upload color="#9CA3AF" size={32} />
-                  <Text className="text-gray-500 mt-1">Tap to upload PDF preview</Text>
-                  <Text className="text-gray-400 text-sm">(Optional)</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+        {/* Availability Section */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <View className="flex-row items-center mb-4">
+            <Share2 color="#F59E0B" size={18} />
+            <Text className="text-lg font-bold text-gray-800 ml-2">Availability Status</Text>
           </View>
+          
+          <View className="gap-2">
+            {availabilityOptions.map((item) => (
+              <TouchableOpacity
+                key={item}
+                className={`p-3 rounded-xl border flex-row items-center ${
+                  availabilityStatus === item
+                    ? 'bg-green-50 border-green-500'
+                    : 'bg-gray-50 border-gray-300'
+                }`}
+                onPress={() => setAvailabilityStatus(item)}
+              >
+                <View className={`w-4 h-4 rounded-full border-2 mr-3 items-center justify-center ${
+                  availabilityStatus === item ? "border-green-500 bg-green-500" : "border-gray-300"
+                }`}>
+                  {availabilityStatus === item && <View className="w-2 h-2 bg-white rounded-full" />}
+                </View>
+                <Text className={`font-medium ${
+                  availabilityStatus === item ? 'text-green-600' : 'text-gray-700'
+                }`}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* PDF Upload Section */}
+        <View className="bg-white rounded-xl shadow-sm p-4 mb-6">
+          <View className="flex-row items-center mb-4">
+            <Upload color="#F59E0B" size={18} />
+            <Text className="text-lg font-bold text-gray-800 ml-2">Book Preview (Optional)</Text>
+          </View>
+          
+          <TouchableOpacity 
+            className={`w-full h-24 rounded-xl border-2 border-dashed items-center justify-center ${
+              pdfFile ? 'bg-green-50 border-green-300' : 'bg-amber-50 border-amber-300'
+            }`}
+            onPress={handlePdfUpload}
+          >
+            {pdfFile ? (
+              <View className="items-center">
+                <FileText color="#10B981" size={32} />
+                <Text className="text-green-600 font-medium mt-1">PDF Uploaded</Text>
+                <Text className="text-gray-500 text-xs">Tap to change</Text>
+              </View>
+            ) : (
+              <View className="items-center">
+                <Upload color="#F59E0B" size={32} />
+                <Text className="text-amber-600 font-medium mt-1">Upload PDF Preview</Text>
+                <Text className="text-gray-500 text-xs">Optional - First few pages</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Submit Button */}
         <TouchableOpacity
-          className="bg-amber-500 rounded-xl py-4 items-center justify-center mb-6"
+          className="bg-amber-500 rounded-xl py-4 items-center justify-center mb-8 shadow-sm"
           onPress={handleAddBook}
         >
-          <Text className="text-white text-lg font-bold">Add to Collection</Text>
+          <View className="flex-row items-center">
+            <Plus color="white" size={20} />
+            <Text className="text-white text-lg font-bold ml-2">
+              {isNew ? "Add to Collection" : "Update Book"}
+            </Text>
+          </View>
         </TouchableOpacity>
       </ScrollView>
     </View>
