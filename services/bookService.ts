@@ -1,4 +1,4 @@
-import { collection, doc, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import {db} from "@/firebase"
 import { Book } from "@/types/book";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -51,7 +51,7 @@ export const uploadToCloudinary = async (fileUri: string, type: 'image' | 'pdf')
     name: type === 'image' ? 'cover.jpg' : 'book.pdf',
   } as any);
 
-  // Must match your unsigned preset exactly
+  
   formData.append('upload_preset', 'book_upload');
 
   // Use your cloud name (dbmzwhgl)
@@ -61,7 +61,7 @@ export const uploadToCloudinary = async (fileUri: string, type: 'image' | 'pdf')
     method: 'POST',
     body: formData,
   });
-
+     
   const data = await response.json();
   console.log("Cloudinary response full:", JSON.stringify(data, null, 2));
 
@@ -74,13 +74,16 @@ export const uploadToCloudinary = async (fileUri: string, type: 'image' | 'pdf')
 
 
 
-
-
-
 export const updateBook = async(id:string,book:Book) => {
      const updateRef = doc(db,"books",id)
 
      const {id: _id,...bookData} = book;
      return updateDoc(updateRef,bookData)
      
+}
+
+export const deleteBook = async(id:string) => {
+
+      const bookRef = doc(db, "books", id);
+      return deleteDoc(bookRef);
 }
