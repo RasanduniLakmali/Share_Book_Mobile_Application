@@ -4,10 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Send, ArrowLeft } from "lucide-react-native";
 import { sendMessage, subscribeMessages, markMessagesAsRead } from "@/services/messageService";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const ChatScreen = () => {
   const { receiverId, receiverName } = useLocalSearchParams<{ receiverId: string; receiverName: string }>();
+  const [receiverNameState, setReceiverNameState] = useState<string>("");
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const [message, setMessage] = useState("");
@@ -49,6 +51,22 @@ const ChatScreen = () => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
+
+  useEffect(() => {
+  const fetchReceiverName = async () => {
+    if (!receiverId) return;
+    const receiverDoc = await getDoc(doc(db, "users", receiverId));
+    if (receiverDoc.exists()) {
+      setReceiverNameState(receiverDoc.data().name);
+    } else {
+      setReceiverNameState("Unknown");
+    }
+  };
+
+  fetchReceiverName();
+}, [receiverId]);
+
+
   return (
     <SafeAreaView className="flex-1 bg-amber-50">
       {/* Header */}
@@ -56,7 +74,8 @@ const ChatScreen = () => {
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
           <ArrowLeft size={24} color="#1F2937" />
         </TouchableOpacity>
-        <Text className="font-bold text-gray-800">{receiverName}</Text>
+        <Text className="font-bold text-gray-800">{receiverNameState || "Chat"}</Text>
+
       </View>
 
       {/* Messages */}
