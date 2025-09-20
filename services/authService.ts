@@ -7,6 +7,15 @@ import { app } from "@/firebase";
 
 const db = getFirestore(app);
 
+export interface DBUser {
+  id: string;
+  name: string;
+  email: string;
+  location: string;
+  phone?: string;
+  profilePicture?: string;
+}
+
 
 export const Register = async (email: string, password: string, name: string, location: string, phone: string, date: string, uid?: string, profilePicture?: string) => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -31,10 +40,12 @@ export const updateUserProfile = async (uid: string, data: any) => {
   return updateDoc(doc(db, "users", uid), data);
 };
 
-export const getUserById = async (userId: string) => {
+export const getUserById = async (userId: string): Promise<DBUser | null> => {
   const userSnap = await getDoc(doc(db, "users", userId));
-  if (userSnap.exists()) return { id: userSnap.id, ...userSnap.data() };
-  return null;
+  if (!userSnap.exists()) return null;
+
+  const data = userSnap.data() as Omit<DBUser, "id">;
+  return { id: userSnap.id, ...data };
 };
 
 export const resetPassword = (email: string) => {
