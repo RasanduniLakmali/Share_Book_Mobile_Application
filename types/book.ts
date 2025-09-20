@@ -11,4 +11,5 @@ export interface Book {
   location: string;
   userId?:string
   username?:string
+  ownerAvatar?: string | null; 
 }
