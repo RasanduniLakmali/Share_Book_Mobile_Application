@@ -1,19 +1,35 @@
 import { 
-  addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, updateDoc, doc 
+  addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, where, updateDoc, doc, 
+  getDoc
 } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db, auth } from "@/firebase";
 
 // Send a message
 export const sendMessage = async (text: string, senderId: string, receiverId: string) => {
+  if (!auth.currentUser) return;
+
+  // Fetch sender name from Firestore (assuming you have a "users" collection)
+  const senderDoc = await getDoc(doc(db, "users", senderId));
+  const senderName = senderDoc.exists() ? senderDoc.data().username : "Unknown";
+
+  // Fetch receiver name (optional, for better chat display)
+  const receiverDoc = await getDoc(doc(db, "users", receiverId));
+  const receiverName = receiverDoc.exists() ? receiverDoc.data().username : "Unknown";
+
   await addDoc(collection(db, "messages"), {
     text,
     senderId,
+    senderName,
     receiverId,
+    receiverName, // optional, can be useful
     participants: [senderId, receiverId],
     timestamp: serverTimestamp(),
     read: false, // mark as unread initially
   });
 };
+
+
+
 
 // Subscribe to chat between two users
 export const subscribeMessages = (currentUserId: string, otherUserId: string, setMessages: Function) => {
