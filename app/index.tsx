@@ -19,16 +19,6 @@ const Index = () => {
    const { user, loading } = useAuth();
 
 
-    useEffect(() => {
-    if (!loading) {
-      if (user) {
-        router.replace('/home');
-      } else {
-        router.replace('/login');
-      }
-    }
-  }, [user, loading]);
-
   if (loading) {
     return (
       <View className="flex-1 w-full justify-center items-center">
@@ -43,7 +33,7 @@ return (
       <ScrollView className="flex-1">
    
         {/* Header */}
-        <View className="px-6 py-16 bg-indigo-600">
+        <View className="px-6 py-16 bg-amber-500">
           <View className="items-center">
             <View className="flex-row items-center mb-6">
               <BookOpen color="white" size={48} />
@@ -60,7 +50,7 @@ return (
               className="bg-white px-8 py-4 rounded-lg shadow-lg"
               onPress={() => router.push("/(auth)/register")}
               >
-                <Text className="text-indigo-600 font-semibold text-center text-lg">
+                <Text className="text-amber-600 font-semibold text-center text-lg">
                   Sign Up for Free
                 </Text>
               </TouchableOpacity>
@@ -78,7 +68,7 @@ return (
         </View>
 
         {/* Features Section */}
-        <View className="py-16 px-6 bg-gray-50">
+        <View className="py-16 px-6 bg-amber-50">
           <Text className="text-3xl font-bold text-center text-gray-800 mb-12">
             Why Book Lovers Choose ShareBook
           </Text>
@@ -86,7 +76,7 @@ return (
           <View className="space-y-6">
             {/* Feature 1 */}
             <View className="bg-white rounded-xl p-6 shadow-lg mx-2">
-              <View className="w-12 h-12 bg-blue-500 rounded-lg items-center justify-center mb-4">
+              <View className="w-12 h-12 bg-amber-500 rounded-lg items-center justify-center mb-4">
                 <Users color="white" size={24} />
               </View>
               <Text className="text-xl font-semibold mb-3 text-gray-800">
@@ -99,7 +89,7 @@ return (
 
             {/* Feature 2 */}
             <View className="bg-white rounded-xl p-6 shadow-lg mx-2">
-              <View className="w-12 h-12 bg-green-500 rounded-lg items-center justify-center mb-4">
+              <View className="w-12 h-12 bg-orange-500 rounded-lg items-center justify-center mb-4">
                 <BookOpen color="white" size={24} />
               </View>
               <Text className="text-xl font-semibold mb-3 text-gray-800">
@@ -112,7 +102,7 @@ return (
 
             {/* Feature 3 */}
             <View className="bg-white rounded-xl p-6 shadow-lg mx-2">
-              <View className="w-12 h-12 bg-purple-500 rounded-lg items-center justify-center mb-4">
+              <View className="w-12 h-12 bg-yellow-500 rounded-lg items-center justify-center mb-4">
                 <MessageCircle color="white" size={24} />
               </View>
               <Text className="text-xl font-semibold mb-3 text-gray-800">
@@ -133,8 +123,8 @@ return (
           
           <View className="space-y-8">
             <View className="items-center">
-              <View className="w-16 h-16 bg-indigo-100 rounded-full items-center justify-center mb-4">
-                <Text className="text-2xl font-bold text-indigo-600">1</Text>
+              <View className="w-16 h-16 bg-amber-100 rounded-full items-center justify-center mb-4">
+                <Text className="text-2xl font-bold text-amber-600">1</Text>
               </View>
               <Text className="font-semibold mb-2 text-gray-800 text-center">Create Profile</Text>
               <Text className="text-sm text-gray-600 text-center px-4">
@@ -143,8 +133,8 @@ return (
             </View>
             
             <View className="items-center">
-              <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
-                <Text className="text-2xl font-bold text-green-600">2</Text>
+              <View className="w-16 h-16 bg-orange-100 rounded-full items-center justify-center mb-4">
+                <Text className="text-2xl font-bold text-orange-600">2</Text>
               </View>
               <Text className="font-semibold mb-2 text-gray-800 text-center">List Books</Text>
               <Text className="text-sm text-gray-600 text-center px-4">
@@ -153,8 +143,8 @@ return (
             </View>
             
             <View className="items-center">
-              <View className="w-16 h-16 bg-purple-100 rounded-full items-center justify-center mb-4">
-                <Text className="text-2xl font-bold text-purple-600">3</Text>
+              <View className="w-16 h-16 bg-yellow-100 rounded-full items-center justify-center mb-4">
+                <Text className="text-2xl font-bold text-yellow-600">3</Text>
               </View>
               <Text className="font-semibold mb-2 text-gray-800 text-center">Discover & Connect</Text>
               <Text className="text-sm text-gray-600 text-center px-4">
@@ -163,8 +153,8 @@ return (
             </View>
             
             <View className="items-center">
-              <View className="w-16 h-16 bg-pink-100 rounded-full items-center justify-center mb-4">
-                <Text className="text-2xl font-bold text-pink-600">4</Text>
+              <View className="w-16 h-16 bg-amber-100 rounded-full items-center justify-center mb-4">
+                <Text className="text-2xl font-bold text-amber-600">4</Text>
               </View>
               <Text className="font-semibold mb-2 text-gray-800 text-center">Share & Enjoy</Text>
               <Text className="text-sm text-gray-600 text-center px-4">
@@ -175,15 +165,15 @@ return (
         </View>
 
         {/* Additional Features */}
-        <View className="py-16 px-6 bg-gray-50">
+        <View className="py-16 px-6 bg-amber-50">
           <Text className="text-3xl font-bold text-center text-gray-800 mb-12">
             Everything You Need to Share Books
           </Text>
           
           <View className="space-y-6">
             <View className="flex-row items-start space-x-4 bg-white p-4 rounded-xl shadow-sm">
-              <View className="w-10 h-10 bg-blue-100 rounded-lg items-center justify-center">
-                <MapPin color="#2563eb" size={20} />
+              <View className="w-10 h-10 bg-amber-100 rounded-lg items-center justify-center">
+                <MapPin color="#D97706" size={20} />
               </View>
               <View className="flex-1">
                 <Text className="font-semibold text-gray-800 mb-2">Location-Based Discovery</Text>
@@ -192,8 +182,8 @@ return (
             </View>
             
             <View className="flex-row items-start space-x-4 bg-white p-4 rounded-xl shadow-sm">
-              <View className="w-10 h-10 bg-green-100 rounded-lg items-center justify-center">
-                <Heart color="#16a34a" size={20} />
+              <View className="w-10 h-10 bg-orange-100 rounded-lg items-center justify-center">
+                <Heart color="#EA580C" size={20} />
               </View>
               <View className="flex-1">
                 <Text className="font-semibold text-gray-800 mb-2">Favorites & Ratings</Text>
@@ -202,8 +192,8 @@ return (
             </View>
             
             <View className="flex-row items-start space-x-4 bg-white p-4 rounded-xl shadow-sm">
-              <View className="w-10 h-10 bg-purple-100 rounded-lg items-center justify-center">
-                <Smartphone color="#9333ea" size={20} />
+              <View className="w-10 h-10 bg-yellow-100 rounded-lg items-center justify-center">
+                <Smartphone color="#CA8A04" size={20} />
               </View>
               <View className="flex-1">
                 <Text className="font-semibold text-gray-800 mb-2">Digital Library</Text>
@@ -212,8 +202,8 @@ return (
             </View>
             
             <View className="flex-row items-start space-x-4 bg-white p-4 rounded-xl shadow-sm">
-              <View className="w-10 h-10 bg-orange-100 rounded-lg items-center justify-center">
-                <Users color="#ea580c" size={20} />
+              <View className="w-10 h-10 bg-amber-100 rounded-lg items-center justify-center">
+                <Users color="#D97706" size={20} />
               </View>
               <View className="flex-1">
                 <Text className="font-semibold text-gray-800 mb-2">Literary Events</Text>
@@ -224,7 +214,7 @@ return (
         </View>
 
         {/* Final Call to Action */}
-        <View className="py-16 px-6 bg-indigo-600">
+        <View className="py-16 px-6 bg-amber-500">
           <View className="items-center">
             <Text className="text-3xl font-bold text-center text-white mb-6">
               Ready to Join the Reading Revolution?
@@ -234,13 +224,19 @@ return (
             </Text>
             
             <View className="w-full space-y-4">
-              <TouchableOpacity className="bg-white px-8 py-4 rounded-lg shadow-lg">
-                <Text className="text-indigo-600 font-semibold text-center text-lg">
+              <TouchableOpacity 
+                className="bg-white px-8 py-4 rounded-lg shadow-lg"
+                onPress={() => router.push("/(auth)/register")}
+              >
+                <Text className="text-amber-600 font-semibold text-center text-lg">
                   Create Your Account
                 </Text>
               </TouchableOpacity>
               
-              <TouchableOpacity className="border-2 border-white px-8 py-4 rounded-lg">
+              <TouchableOpacity 
+                className="border-2 border-white px-8 py-4 rounded-lg"
+                onPress={() => router.push("/(auth)/login")}
+              >
                 <Text className="text-white font-semibold text-center text-lg">
                   Already Have an Account?
                 </Text>
