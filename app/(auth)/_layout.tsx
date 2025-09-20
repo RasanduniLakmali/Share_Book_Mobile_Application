@@ -4,7 +4,7 @@ import { Stack } from "expo-router";
 const AuthLayout = () => {
   return (
     <Stack screenOptions={{
-      headerShown: true,
+      headerShown: false,
       contentStyle: { backgroundColor: 'white' },
       animation: 'slide_from_right',
       headerTitleStyle: { fontSize: 20, fontWeight: 'bold', color: '#1E40AF' },
