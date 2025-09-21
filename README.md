@@ -81,3 +81,7 @@ expo build:android
 #### EAS Build
 ```bash
 eas build -p android
+
+```
+### Youtube demo video link
+https://youtu.be/Y-ENQNvQHv0?si=Gez8c03fB6uQZbUs
