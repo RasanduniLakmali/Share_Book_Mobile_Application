@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from '@/context/authContext';
 
 
+
 const Index = () => {
 
    const router = useRouter();
